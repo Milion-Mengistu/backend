@@ -29,7 +29,7 @@ uv sync --all-groups
 4. Install Node dependencies:
 
 ```bash
-npm install
+npm ci
 ```
 
 5. Start the API:
@@ -49,10 +49,37 @@ make check
 ```bash
 make bootstrap     # install Python and Node dependencies
 make dev           # run the FastAPI app with reload
+make render-build  # install production deploy dependencies for Render
+make render-start  # run the app with Render-compatible host and port binding
 make lint          # run ruff and TypeScript checks
 make test          # run Python tests
 make ai-node       # show the Node AI helper entrypoint usage
 make ai-python     # print current AI runtime config from .env
+```
+
+## Render Deployment
+
+This repo now includes:
+
+- `Dockerfile` so Render can run both Node and Python in one service
+- `render.yaml` so the service can be created from a Blueprint
+- `make render-build` as the single build command
+- `make render-start` as the single start command
+
+Why Docker: Render's native runtimes are language-specific. If you need both Node and Python available in the same service, Docker is the reliable setup.
+
+### Deploy Steps
+
+1. Push this repo to GitHub.
+2. In Render, create a new Blueprint and point it at this repository.
+3. Render will detect `render.yaml` and create the web service.
+4. In the service settings, set `SUPABASE_DB_URL`.
+5. Set `OPENAI_API_KEY` only if you need OpenAI-backed features.
+
+The container starts the API with:
+
+```bash
+make render-start
 ```
 
 ## Repository Layout
