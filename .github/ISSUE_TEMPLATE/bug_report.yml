@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a backend defect or regression
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is failing?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include request payloads, commands, or env conditions when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Who is blocked or what system behavior is at risk?
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation notes
+      description: Logs, screenshots, test output, or curl examples.

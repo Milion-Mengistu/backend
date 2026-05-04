@@ -1,0 +1,30 @@
+name: Task
+description: Track a scoped backend engineering task
+title: "[Task] "
+labels:
+  - task
+body:
+  - type: input
+    id: owner
+    attributes:
+      label: Owner
+      description: Who is expected to take this?
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What needs to be done?
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of done
+      description: What evidence or outcome closes this task?
+    validations:
+      required: true
+  - type: textarea
+    id: blockers
+    attributes:
+      label: Blockers or dependencies
+      description: Note anything this task depends on.

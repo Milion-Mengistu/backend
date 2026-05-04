@@ -87,6 +87,7 @@ Before contributing, read:
 
 - [CONTRIBUTING.md](/tmp/backend-migration-gkNAmg/CONTRIBUTING.md)
 - [docs/WORKFLOW.md](/tmp/backend-migration-gkNAmg/docs/WORKFLOW.md)
+- [docs/REPO_SETUP.md](/tmp/backend-migration-gkNAmg/docs/REPO_SETUP.md)
 
 ## Notes
 
