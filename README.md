@@ -106,15 +106,16 @@ Both Python and Node use the same `.env` file.
 - Use Node when you want to move quickly with JS-first AI SDKs or agent tooling.
 - Keep provider secrets in `.env`, not in source files.
 
-See [docs/DEVELOPMENT.md](/tmp/backend-migration-gkNAmg/docs/DEVELOPMENT.md) and [docs/AI_DEVELOPMENT.md](/tmp/backend-migration-gkNAmg/docs/AI_DEVELOPMENT.md).
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) and [docs/AI_DEVELOPMENT.md](docs/AI_DEVELOPMENT.md).
 
 ## Contribution
 
 Before contributing, read:
 
-- [CONTRIBUTING.md](/tmp/backend-migration-gkNAmg/CONTRIBUTING.md)
-- [docs/WORKFLOW.md](/tmp/backend-migration-gkNAmg/docs/WORKFLOW.md)
-- [docs/REPO_SETUP.md](/tmp/backend-migration-gkNAmg/docs/REPO_SETUP.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [docs/BRANCHING_STRATEGIES.md](docs/BRANCHING_STRATEGIES.md)
+- [docs/WORKFLOW.md](docs/WORKFLOW.md)
+- [docs/REPO_SETUP.md](docs/REPO_SETUP.md)
 
 ## Notes
 

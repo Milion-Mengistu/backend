@@ -6,9 +6,9 @@ This repo supports AI development from either Python or Node.
 
 Use Python when:
 
-- the feature lives inside the FastAPI request path
-- the AI step needs direct database or backend module access
-- the team wants one runtime in production for the whole request flow
+- the feature is an AI service, worker, or model-facing integration
+- the AI step needs Python-first ML or data tooling
+- the Node backend needs to call into a Python AI component
 
 Python dependencies for AI live in the `ai` dependency group in `pyproject.toml`.
 
@@ -16,6 +16,7 @@ Python dependencies for AI live in the `ai` dependency group in `pyproject.toml`
 
 Use Node when:
 
+- you are building the main backend API or auth-protected application routes
 - an SDK or example lands earlier in JS than Python
 - you are building internal tools, scripts, or rapid experiments
 - you want TypeScript types around structured AI input and output
