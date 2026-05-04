@@ -7,8 +7,8 @@ This document defines how authentication and authorization should work for the F
 It is designed to support:
 
 - Supabase as the identity provider and shared database
-- FastAPI as the main backend runtime
-- Node.js helpers and internal tooling without duplicating auth rules
+- Node.js as the main backend runtime
+- Python as the AI runtime without duplicating auth rules
 - Docker and Render deployment
 - easy-to-apply middleware or wrapper patterns for new endpoints
 
@@ -40,7 +40,7 @@ Do not use one token type for all three. Human sessions, device writes, and back
 - Keep Supabase service-role credentials server-side only.
 - Use application roles for authorization decisions, not only the raw Supabase user id.
 - Treat device ingestion as machine auth, not user auth.
-- Keep Python and Node auth behavior aligned through the same claims and role names.
+- Keep Node and Python auth behavior aligned through the same claims and role names.
 
 ## Roles
 
@@ -205,36 +205,37 @@ Do not use the Supabase service-role key in client code, mobile apps, or browser
 
 ## Supabase Verification Strategy
 
-### Python Backend
+### Node Backend
 
 Recommended pattern:
 
 - read the bearer token from the request
 - verify the JWT against Supabase
 - build a request auth context
-- enforce roles through dependencies
+- enforce roles through middleware
 
 Suggested modules:
 
-- `analytics/auth/jwt.py`
-- `analytics/auth/context.py`
-- `analytics/auth/dependencies.py`
-- `analytics/auth/device.py`
+- `src/auth/verify-user-token.ts`
+- `src/auth/context.ts`
+- `src/auth/middleware.ts`
+- `src/auth/device.ts`
 
 Suggested request context shape:
 
-```python
-class AuthContext:
-    subject: str
-    role: str
-    email: str | None
-    vehicle_ids: list[str]
-    token_type: str  # user, device, service
+```ts
+type AuthContext = {
+  subject: string;
+  role: string;
+  email: string | null;
+  vehicleIds: string[];
+  tokenType: "user" | "device" | "service";
+};
 ```
 
-### Node Environment
+### Python AI Runtime
 
-Node tooling should not invent a separate auth model.
+Python should follow the same auth model when AI-facing endpoints or internal AI jobs need protected access.
 
 Use the same:
 
@@ -245,62 +246,19 @@ Use the same:
 
 Suggested modules:
 
-- `tools/auth/verify-user-token.ts`
-- `tools/auth/verify-device-token.ts`
-- `tools/auth/authorize.ts`
+- `analytics/auth/jwt.py`
+- `analytics/auth/context.py`
+- `analytics/auth/dependencies.py`
+- `analytics/auth/device.py`
 
-Node helpers should either:
+Python services should either:
 
-- verify Supabase JWTs directly for API endpoints if Node ever becomes a running service
-- or call the Python API using a server-side service credential if the Node code is only internal tooling
+- verify Supabase JWTs directly if the Python process exposes protected endpoints for AI features
+- or receive requests only from the main Node backend using server-side credentials
 
 ## Easy Wrapper Pattern
 
 New features should be protected by wrappers instead of repeating auth logic.
-
-### Python Pattern
-
-Use FastAPI dependencies as the middleware-like wrapper.
-
-Example structure:
-
-```python
-from fastapi import Depends, HTTPException, Request
-
-def require_user(request: Request) -> AuthContext:
-    ...
-
-def require_role(*allowed_roles: str):
-    def dependency(ctx: AuthContext = Depends(require_user)) -> AuthContext:
-        if ctx.role not in allowed_roles:
-            raise HTTPException(status_code=403, detail="Forbidden")
-        return ctx
-    return dependency
-
-def require_vehicle_access(vehicle_id_param: str):
-    def dependency(
-        request: Request,
-        ctx: AuthContext = Depends(require_user),
-    ) -> AuthContext:
-        vehicle_id = request.path_params[vehicle_id_param]
-        if ctx.role != "admin" and vehicle_id not in ctx.vehicle_ids:
-            raise HTTPException(status_code=403, detail="Forbidden")
-        return ctx
-    return dependency
-```
-
-Usage:
-
-```python
-@app.get("/api/vehicles/{vehicle_id}/history")
-def vehicle_history(
-    vehicle_id: str,
-    ctx: AuthContext = Depends(require_vehicle_access("vehicle_id")),
-):
-    ...
-```
-
-This gives the team a wrapper-like pattern without fighting FastAPI.
 
 ### Node Pattern
 
@@ -339,20 +297,19 @@ export function requireVehicleAccess(paramName: string) {
 
 ## Middleware Layers To Implement
 
+- `requireUser`
+- `requireRole`
+- `requireVehicleAccess`
+- `requireDevice`
+- `optionalUser` for mixed public/personalized endpoints if ever needed
+
 ### Python
 
 - `require_user`
 - `require_role`
 - `require_vehicle_access`
 - `require_device`
-- `optional_user` for mixed public/personalized endpoints if ever needed
-
-### Node
-
-- `requireUser`
-- `requireRole`
-- `requireVehicleAccess`
-- `requireDevice`
+- `optional_user`
 
 These names should stay parallel across runtimes.
 
@@ -473,13 +430,13 @@ If the backend later depends on Supabase JWKS retrieval at runtime, verify Rende
 ## Recommended Implementation Order
 
 1. add `user_profiles`, `user_vehicle_access`, and `device_credentials`
-2. implement Python auth context and wrappers
+2. implement Node auth context and middleware
 3. protect `POST /api/telemetry` with `require_device`
 4. add user-protected API routes under `/api/*`
 5. add `admin` role enforcement for management routes
 6. add `viewer` read access
 7. add `driver` vehicle scoping
-8. add equivalent Node helpers for internal tooling or future Node services
+8. add equivalent Python helpers for AI services that need protected access
 9. add tests for `401`, `403`, and allowed cases
 
 ## Testing Checklist
@@ -504,13 +461,13 @@ Title:
 
 Suggested acceptance criteria:
 
-- add reusable auth wrappers for FastAPI
+- add reusable auth middleware for Node.js
 - define `admin`, `driver`, and `viewer` roles
 - add device-token auth for telemetry ingestion
 - document Render environment variables for auth
 - keep `/health` public
 - add tests for `401`, `403`, and successful access cases
-- document how Node helpers use the same auth model
+- document how Python AI services use the same auth model
 
 ## Decisions To Keep Explicit
 
