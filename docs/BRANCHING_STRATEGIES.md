@@ -4,7 +4,7 @@
 
 This guide defines the Git workflow for the backend repository so changes stay small, reviewable, and safe to merge.
 
-It builds on the project-wide workflow in `reference/docs/WORKFLOW.md` and the task slicing guidance in `reference/docs/TASK_SLICING.md`, but narrows the rules for backend delivery.
+It builds on the project-wide workflow in `docs/WORKFLOW.md`, but narrows the rules for backend delivery.
 
 ## Core Rules
 
