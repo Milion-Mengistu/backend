@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("SUPABASE_DB_URL")
+}
+
+model Vehicle {
+  vehicleId          String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid @map("vehicleId")
+  plateNumber        String               @map("plateNumber")
+  label              String
+  tankCapacityLiters Decimal              @db.Decimal(10, 2) @map("tankCapacityLiters")
+  assignedDriver     String?              @map("assignedDriver")
+  status             String
+  createdAt          DateTime             @default(now()) @db.Timestamptz(6) @map("createdAt")
+  telemetry          TelemetryNormalized[]
+  latestState        VehicleLatestState?
+
+  @@map("vehicles")
+}
+
+model TelemetryRaw {
+  telemetryId String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid @map("telemetryId")
+  receivedAt  DateTime @default(now()) @db.Timestamptz(6) @map("receivedAt")
+  payload     Json
+  source      String
+
+  @@map("telemetry_raw")
+}
+
+model TelemetryNormalized {
+  telemetryId       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid @map("telemetryId")
+  vehicleId         String    @db.Uuid @map("vehicleId")
+  deviceId          String    @map("deviceId")
+  timestamp         DateTime  @db.Timestamptz(6) @map("timestamp")
+  fuelLevelLiters   Decimal?  @db.Decimal(10, 2) @map("fuelLevelLiters")
+  fuelLevelPercent  Decimal?  @db.Decimal(5, 2) @map("fuelLevelPercent")
+  latitude          Decimal?  @db.Decimal(10, 7)
+  longitude         Decimal?  @db.Decimal(10, 7)
+  speedKph          Decimal?  @db.Decimal(10, 2) @map("speedKph")
+  engineStatus      String?   @map("engineStatus")
+  vehicle           Vehicle   @relation(fields: [vehicleId], references: [vehicleId], onDelete: Cascade)
+
+  @@map("telemetry_normalized")
+}
+
+model VehicleLatestState {
+  vehicleId         String    @id @db.Uuid @map("vehicleId")
+  lastSeenAt        DateTime? @db.Timestamptz(6) @map("lastSeenAt")
+  fuelLevelLiters   Decimal?  @db.Decimal(10, 2) @map("fuelLevelLiters")
+  fuelLevelPercent  Decimal?  @db.Decimal(5, 2) @map("fuelLevelPercent")
+  latitude          Decimal?  @db.Decimal(10, 7)
+  longitude         Decimal?  @db.Decimal(10, 7)
+  engineStatus      String?   @map("engineStatus")
+  deviceStatus      String?   @map("deviceStatus")
+  currentAlertLevel String?   @map("currentAlertLevel")
+  vehicle           Vehicle   @relation(fields: [vehicleId], references: [vehicleId], onDelete: Cascade)
+
+  @@map("vehicle_latest_state")
+}
