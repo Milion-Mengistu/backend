@@ -1,5 +1,9 @@
 .venv/
+.venv-node/
 .python-version
+.node-version
+.npm/
+node_modules/
 .env
 .env.local
 __pycache__/
@@ -10,6 +14,7 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+coverage/
 dist/
 build/
 *.egg-info/

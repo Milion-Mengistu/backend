@@ -1,0 +1,23 @@
+{
+  "name": "fuel-aware-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node tooling for AI workflows around the Fuel-Aware backend",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "ai:check": "tsx tools/ai/check-env.ts"
+  },
+  "dependencies": {
+    "dotenv": ">=16.0.0",
+    "openai": ">=4.0.0",
+    "zod": ">=3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": ">=20.0.0",
+    "tsx": ">=4.0.0",
+    "typescript": ">=5.0.0"
+  }
+}

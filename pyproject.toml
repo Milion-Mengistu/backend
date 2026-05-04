@@ -12,5 +12,22 @@ dependencies = [
     "uvicorn[standard]>=0.30.0",
 ]
 
+[dependency-groups]
+dev = [
+    "httpx>=0.28.0",
+    "pytest>=8.3.0",
+    "ruff>=0.12.0",
+]
+ai = [
+    "openai>=1.40.0",
+]
+
 [tool.uv]
 package = false
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
