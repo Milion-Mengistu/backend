@@ -113,6 +113,7 @@ See [docs/DEVELOPMENT.md](/tmp/backend-migration-gkNAmg/docs/DEVELOPMENT.md) and
 Before contributing, read:
 
 - [CONTRIBUTING.md](/tmp/backend-migration-gkNAmg/CONTRIBUTING.md)
+- [docs/BRANCHING_STRATEGIES.md](/tmp/backend-migration-gkNAmg/docs/BRANCHING_STRATEGIES.md)
 - [docs/WORKFLOW.md](/tmp/backend-migration-gkNAmg/docs/WORKFLOW.md)
 - [docs/REPO_SETUP.md](/tmp/backend-migration-gkNAmg/docs/REPO_SETUP.md)
 

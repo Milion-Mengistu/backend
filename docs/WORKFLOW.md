@@ -30,6 +30,8 @@ chore/<topic>
 test/<topic>
 ```
 
+See `docs/BRANCHING_STRATEGIES.md` for branch, commit, and PR rules for backend work.
+
 ## Review Rule
 
 Every PR should state:
@@ -38,6 +40,11 @@ Every PR should state:
 - why it changed
 - how it was tested
 - what remains as follow-up
+
+Preferred review target:
+
+- under 300 changed lines
+- 10 changed files or fewer
 
 ## CI Strategy
 

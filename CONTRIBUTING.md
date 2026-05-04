@@ -46,9 +46,12 @@ chore: add backend ci workflow
 
 - one logical change per PR
 - keep PRs small enough to review quickly
+- target under 300 changed lines and 10 changed files when possible
 - include test steps
 - include example payloads if API behavior changes
 - call out follow-up work explicitly
+
+See `docs/BRANCHING_STRATEGIES.md` for the full backend Git workflow.
 
 ## Required Checks Before Merge
 
