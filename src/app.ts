@@ -1,0 +1,27 @@
+import express from 'express';
+
+import { env } from './config/env';
+import { prisma } from './lib/prisma';
+
+export const app = express();
+
+app.use(express.json());
+
+app.get('/health', async (_request, response) => {
+  let clientReady = false;
+  if (prisma) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      clientReady = true;
+    } catch {
+      clientReady = false;
+    }
+  }
+  response.json({
+    status: 'ok',
+    appName: env.appName,
+    environment: env.appEnv,
+    prismaConfigured: env.prismaConfigured,
+    clientReady,
+  });
+});
