@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from typing import Iterator
 
 from psycopg import Connection
+from psycopg import Error as PsycopgError
 from psycopg.rows import dict_row
 from psycopg.sql import Identifier, SQL
 from psycopg_pool import ConnectionPool

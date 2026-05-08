@@ -25,7 +25,7 @@ RUN npm ci && npm run prisma:generate
 RUN python3 -m venv "$VIRTUAL_ENV" \
   && "$VIRTUAL_ENV/bin/pip" install --no-cache-dir --upgrade pip \
   && "$VIRTUAL_ENV/bin/pip" install --no-cache-dir \
-     uvicorn[standard] fastapi psycopg-binary psycopg-pool pydantic-settings python-dotenv
+     fastapi "psycopg[binary]>=3.2.0" psycopg-pool pydantic-settings "uvicorn[standard]>=0.30.0" python-dotenv
 
 # Copy application files
 COPY src ./src
