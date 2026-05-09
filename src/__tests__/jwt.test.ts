@@ -1,32 +1,44 @@
-import { describe, expect, it } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env';
 import { AuthError } from '../auth/errors';
-import { extractBearerToken, verifyUserToken } from '../auth/jwt';
+
+jest.mock('dotenv', () => ({ config: jest.fn() }));
 
 describe('JWT Utilities', () => {
+  beforeEach(() => {
+    jest.resetModules();
+    delete process.env.SUPABASE_JWT_SECRET;
+  });
+
   describe('extractBearerToken', () => {
     it('returns null if header is undefined', () => {
+      const { extractBearerToken } = require('../auth/jwt') as typeof import('../auth/jwt');
       expect(extractBearerToken(undefined)).toBeNull();
     });
 
     it('returns null if header does not start with Bearer', () => {
+      const { extractBearerToken } = require('../auth/jwt') as typeof import('../auth/jwt');
       expect(extractBearerToken('Basic some-token')).toBeNull();
     });
 
     it('returns the token when correctly formatted', () => {
+      const { extractBearerToken } = require('../auth/jwt') as typeof import('../auth/jwt');
       expect(extractBearerToken('Bearer my-secret-token')).toBe('my-secret-token');
     });
 
     it('returns null if header is malformed', () => {
+      const { extractBearerToken } = require('../auth/jwt') as typeof import('../auth/jwt');
       expect(extractBearerToken('Bearer')).toBeNull();
     });
   });
 
   describe('verifyUserToken', () => {
-    const secretKey = env.supabaseJwtSecret;
+    const loadVerifyUserToken = () => {
+      const jwtModule = require('../auth/jwt') as typeof import('../auth/jwt');
+      return jwtModule.verifyUserToken;
+    };
 
-    const createValidToken = (payload: Record<string, unknown> = {}) => {
+    const createValidToken = (secretKey: string, payload: Record<string, unknown> = {}) => {
       return jwt.sign(
         { sub: 'user-123', email: 'test@example.com', ...payload },
         secretKey,
@@ -35,7 +47,9 @@ describe('JWT Utilities', () => {
     };
 
     it('successfully verifies a valid Supabase HS256 token', async () => {
-      const token = createValidToken();
+      process.env.SUPABASE_JWT_SECRET = 'test-jwt-secret';
+      const verifyUserToken = await loadVerifyUserToken();
+      const token = createValidToken(process.env.SUPABASE_JWT_SECRET);
       const result = await verifyUserToken(token);
       
       expect(result).toEqual({
@@ -45,13 +59,14 @@ describe('JWT Utilities', () => {
     });
 
     it('throws AuthError if token has wrong audience', async () => {
+      process.env.SUPABASE_JWT_SECRET = 'test-jwt-secret';
+      const verifyUserToken = await loadVerifyUserToken();
       const token = jwt.sign(
         { sub: 'user-123' },
-        secretKey,
+        process.env.SUPABASE_JWT_SECRET,
         { algorithm: 'HS256', audience: 'wrong-audience', expiresIn: '1h' }
       );
 
-      await expect(verifyUserToken(token)).rejects.toThrow(AuthError);
       await expect(verifyUserToken(token)).rejects.toMatchObject({
         code: 'UNAUTHORIZED',
         message: 'Invalid or expired token.',
@@ -59,20 +74,27 @@ describe('JWT Utilities', () => {
     });
 
     it('throws AuthError if token is expired', async () => {
+      process.env.SUPABASE_JWT_SECRET = 'test-jwt-secret';
+      const verifyUserToken = await loadVerifyUserToken();
       // Create token that expired 1 hour ago
       const token = jwt.sign(
         { sub: 'user-123', exp: Math.floor(Date.now() / 1000) - 3600 },
-        secretKey,
+        process.env.SUPABASE_JWT_SECRET,
         { algorithm: 'HS256', audience: 'authenticated' }
       );
 
-      await expect(verifyUserToken(token)).rejects.toThrow(AuthError);
+      await expect(verifyUserToken(token)).rejects.toMatchObject({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid or expired token.',
+      });
     });
 
     it('throws AuthError if subject claim is missing', async () => {
+      process.env.SUPABASE_JWT_SECRET = 'test-jwt-secret';
+      const verifyUserToken = await loadVerifyUserToken();
       const token = jwt.sign(
         { email: 'test@example.com' },
-        secretKey,
+        process.env.SUPABASE_JWT_SECRET,
         { algorithm: 'HS256', audience: 'authenticated', expiresIn: '1h' }
       );
 
@@ -80,9 +102,11 @@ describe('JWT Utilities', () => {
     });
 
     it('handles missing email claim correctly', async () => {
+      process.env.SUPABASE_JWT_SECRET = 'test-jwt-secret';
+      const verifyUserToken = await loadVerifyUserToken();
       const token = jwt.sign(
         { sub: 'user-456' },
-        secretKey,
+        process.env.SUPABASE_JWT_SECRET,
         { algorithm: 'HS256', audience: 'authenticated', expiresIn: '1h' }
       );
 
@@ -91,6 +115,16 @@ describe('JWT Utilities', () => {
       expect(result).toEqual({
         subject: 'user-456',
         email: null,
+      });
+    });
+
+    it('throws service unavailable when JWT auth is not configured', async () => {
+      delete process.env.SUPABASE_JWT_SECRET;
+      const verifyUserToken = await loadVerifyUserToken();
+
+      await expect(verifyUserToken('token')).rejects.toMatchObject({
+        code: 'SERVICE_UNAVAILABLE',
+        message: 'User authentication is not configured on this service.',
       });
     });
   });

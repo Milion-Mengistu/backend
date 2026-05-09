@@ -77,7 +77,10 @@ Why Docker: Render's native runtimes are language-specific. If you need both Nod
 5. If Render uses a pooled Supabase URL that Prisma does not like, also set:
    `SUPABASE_PRISMA_URL` for the Node/Prisma runtime connection and
    `SUPABASE_DIRECT_URL` for Prisma CLI or migrations.
-6. Set `OPENAI_API_KEY` only if you need OpenAI-backed features.
+6. If you enable authenticated Node routes, also set:
+   `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_JWT_SECRET`, and
+   `AUTH_DEVICE_TOKEN_PEPPER`.
+7. Set `OPENAI_API_KEY` only if you need OpenAI-backed features.
 
 The container starts the API with:
 

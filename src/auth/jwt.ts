@@ -2,8 +2,15 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { env } from '../config/env';
 import { AuthError } from './errors';
 
-// Supabase uses the JWT Secret directly for HS256
-const secretKey = env.supabaseJwtSecret;
+function getSupabaseJwtSecret(): string {
+  if (!env.supabaseJwtSecret) {
+    throw AuthError.serviceUnavailable(
+      'User authentication is not configured on this service.'
+    );
+  }
+
+  return env.supabaseJwtSecret;
+}
 
 /**
  * Extracts a Bearer token from the Authorization header.
@@ -32,6 +39,7 @@ export function extractBearerToken(authHeader: string | undefined): string | nul
  */
 export async function verifyUserToken(token: string): Promise<{ subject: string; email: string | null }> {
   try {
+    const secretKey = getSupabaseJwtSecret();
     const payload = await new Promise<JwtPayload>((resolve, reject) => {
       jwt.verify(
         token, 
