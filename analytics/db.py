@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from typing import Iterator
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from psycopg import Connection
 from psycopg import Error as PsycopgError
@@ -12,12 +13,30 @@ from analytics.config import settings
 _connection_pool: ConnectionPool | None = None
 
 
+def _normalize_conninfo(conninfo: str) -> str:
+    parts = urlsplit(conninfo)
+    if not parts.query:
+        return conninfo
+
+    query_items = parse_qsl(parts.query, keep_blank_values=True)
+    filtered_items = [
+        (key, value)
+        for key, value in query_items
+        if key.lower() != "pgbouncer"
+    ]
+
+    if len(filtered_items) == len(query_items):
+        return conninfo
+
+    return urlunsplit(parts._replace(query=urlencode(filtered_items, doseq=True)))
+
+
 def init_connection_pool() -> None:
     global _connection_pool
 
     if _connection_pool is None:
         _connection_pool = ConnectionPool(
-            conninfo=settings.supabase_db_url,
+            conninfo=_normalize_conninfo(settings.supabase_db_url),
             kwargs={"row_factory": dict_row},
             open=False,
         )

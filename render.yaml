@@ -12,6 +12,10 @@ services:
         value: production
       - key: SUPABASE_DB_URL
         sync: false
+      - key: SUPABASE_PRISMA_URL
+        sync: false
+      - key: SUPABASE_DIRECT_URL
+        sync: false
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY

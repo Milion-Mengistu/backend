@@ -9,6 +9,7 @@ describe('prisma client', () => {
     jest.doMock('../config/env', () => ({
       env: {
         prismaConfigured: true,
+        supabasePrismaUrl: 'postgresql://user:pass@localhost:5432/db',
       },
     }));
     
@@ -20,7 +21,13 @@ describe('prisma client', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { prisma } = require('../lib/prisma');
     
-    expect(mockPrismaClient).toHaveBeenCalled();
+    expect(mockPrismaClient).toHaveBeenCalledWith({
+      datasources: {
+        db: {
+          url: 'postgresql://user:pass@localhost:5432/db',
+        },
+      },
+    });
     expect(prisma).toBeDefined();
     expect(prisma).not.toBeNull();
   });

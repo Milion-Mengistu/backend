@@ -11,6 +11,8 @@ const envSchema = z.object({
   APP_PORT: z.coerce.number().int().positive().optional(),
   PORT: z.coerce.number().int().positive().optional(),
   SUPABASE_DB_URL: z.string().url().optional(),
+  SUPABASE_PRISMA_URL: z.string().url().optional(),
+  SUPABASE_DIRECT_URL: z.string().url().optional(),
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_JWT_SECRET: z.string().min(1),
@@ -25,7 +27,11 @@ export const env = {
   host: parsedEnv.APP_HOST ?? parsedEnv.HOST ?? '0.0.0.0',
   port: parsedEnv.APP_PORT ?? parsedEnv.PORT ?? 8000,
   supabaseDbUrl: parsedEnv.SUPABASE_DB_URL,
-  prismaConfigured: Boolean(parsedEnv.SUPABASE_DB_URL),
+  supabasePrismaUrl: parsedEnv.SUPABASE_PRISMA_URL ?? parsedEnv.SUPABASE_DB_URL,
+  supabaseDirectUrl: parsedEnv.SUPABASE_DIRECT_URL,
+  prismaConfigured: Boolean(
+    parsedEnv.SUPABASE_PRISMA_URL ?? parsedEnv.SUPABASE_DB_URL
+  ),
   supabaseUrl: parsedEnv.SUPABASE_URL,
   supabaseAnonKey: parsedEnv.SUPABASE_ANON_KEY,
   supabaseJwtSecret: parsedEnv.SUPABASE_JWT_SECRET,
